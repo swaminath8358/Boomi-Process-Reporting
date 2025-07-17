@@ -1,0 +1,120 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database (optional for production)
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: boomi_dashboard
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./server/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - boomi-network
+    restart: unless-stopped
+    profiles: ["production"]
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - boomi-network
+    restart: unless-stopped
+    profiles: ["production"]
+
+  # Boomi Dashboard Application
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=boomi_dashboard
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+      - JWT_EXPIRES_IN=24h
+      - CORS_ORIGIN=http://localhost:5000
+    depends_on:
+      - postgres
+    networks:
+      - boomi-network
+    restart: unless-stopped
+    profiles: ["production"]
+
+  # Development setup
+  server-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: server
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./server:/app/server
+      - /app/server/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - JWT_SECRET=development-secret-key
+      - JWT_EXPIRES_IN=24h
+      - CORS_ORIGIN=http://localhost:3000
+    networks:
+      - boomi-network
+    restart: unless-stopped
+    profiles: ["development"]
+
+  client-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: client
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/app/client
+      - /app/client/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - server-dev
+    networks:
+      - boomi-network
+    restart: unless-stopped
+    profiles: ["development"]
+
+  # Nginx reverse proxy (optional for production)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - app
+    networks:
+      - boomi-network
+    restart: unless-stopped
+    profiles: ["production", "nginx"]
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  boomi-network:
+    driver: bridge
