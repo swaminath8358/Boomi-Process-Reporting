@@ -1,23 +1,10 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import {
-  ProcessResponse,
-  ProcessExecution,
-  DashboardSummary,
-  FilterOptions,
-  AuthResponse,
-  LoginCredentials,
-  LogEntry,
-  FilterState,
-} from '../types';
+import axios from 'axios';
 
 /**
  * API service for communicating with the Boomi Dashboard backend
  * Handles authentication, process data, and dashboard statistics
  */
 class ApiService {
-  private api: AxiosInstance;
-  private baseURL: string;
-
   constructor() {
     this.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     
@@ -61,17 +48,12 @@ class ApiService {
   /**
    * Authentication methods
    */
-  async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    const response: AxiosResponse<AuthResponse> = await this.api.post('/api/auth/login', credentials);
+  async login(credentials) {
+    const response = await this.api.post('/api/auth/login', credentials);
     return response.data;
   }
 
-  async register(userData: {
-    username: string;
-    password: string;
-    email: string;
-    role?: string;
-  }): Promise<{ message: string; user: any }> {
+  async register(userData) {
     const response = await this.api.post('/api/auth/register', userData);
     return response.data;
   }
@@ -79,7 +61,7 @@ class ApiService {
   /**
    * Process data methods
    */
-  async getProcesses(filters: Partial<FilterState> = {}): Promise<ProcessResponse> {
+  async getProcesses(filters = {}) {
     const params = new URLSearchParams();
     
     Object.entries(filters).forEach(([key, value]) => {
@@ -88,23 +70,23 @@ class ApiService {
       }
     });
 
-    const response: AxiosResponse<ProcessResponse> = await this.api.get(
+    const response = await this.api.get(
       `/api/processes?${params.toString()}`
     );
     return response.data;
   }
 
-  async getProcess(id: string | number): Promise<ProcessExecution> {
-    const response: AxiosResponse<ProcessExecution> = await this.api.get(`/api/processes/${id}`);
+  async getProcess(id) {
+    const response = await this.api.get(`/api/processes/${id}`);
     return response.data;
   }
 
-  async getProcessLogs(id: string | number): Promise<{ logs: LogEntry[] }> {
-    const response: AxiosResponse<{ logs: LogEntry[] }> = await this.api.get(`/api/processes/${id}/logs`);
+  async getProcessLogs(id) {
+    const response = await this.api.get(`/api/processes/${id}/logs`);
     return response.data;
   }
 
-  async retryProcess(id: string | number): Promise<{ message: string; newProcess: ProcessExecution }> {
+  async retryProcess(id) {
     const response = await this.api.post(`/api/processes/${id}/retry`);
     return response.data;
   }
@@ -112,23 +94,23 @@ class ApiService {
   /**
    * Dashboard statistics methods
    */
-  async getDashboardSummary(): Promise<DashboardSummary> {
-    const response: AxiosResponse<DashboardSummary> = await this.api.get('/api/processes/dashboard');
+  async getDashboardSummary() {
+    const response = await this.api.get('/api/processes/dashboard');
     return response.data;
   }
 
   /**
    * Filter metadata methods
    */
-  async getFilterOptions(): Promise<FilterOptions> {
-    const response: AxiosResponse<FilterOptions> = await this.api.get('/api/processes/metadata/filters');
+  async getFilterOptions() {
+    const response = await this.api.get('/api/processes/metadata/filters');
     return response.data;
   }
 
   /**
    * Health check method
    */
-  async healthCheck(): Promise<{ status: string; timestamp: string; uptime: number }> {
+  async healthCheck() {
     const response = await this.api.get('/health');
     return response.data;
   }
@@ -136,20 +118,20 @@ class ApiService {
   /**
    * Utility methods
    */
-  setAuthToken(token: string): void {
+  setAuthToken(token) {
     localStorage.setItem('boomi-dashboard-token', token);
   }
 
-  removeAuthToken(): void {
+  removeAuthToken() {
     localStorage.removeItem('boomi-dashboard-token');
     localStorage.removeItem('boomi-dashboard-user');
   }
 
-  getAuthToken(): string | null {
+  getAuthToken() {
     return localStorage.getItem('boomi-dashboard-token');
   }
 
-  isAuthenticated(): boolean {
+  isAuthenticated() {
     const token = this.getAuthToken();
     if (!token) return false;
 
@@ -166,7 +148,7 @@ class ApiService {
   /**
    * Download methods for exports (future enhancement)
    */
-  async downloadProcessReport(filters: Partial<FilterState> = {}): Promise<Blob> {
+  async downloadProcessReport(filters = {}) {
     const params = new URLSearchParams();
     
     Object.entries(filters).forEach(([key, value]) => {
@@ -184,7 +166,7 @@ class ApiService {
   /**
    * Error handling utility
    */
-  handleApiError(error: any): string {
+  handleApiError(error) {
     if (error.response?.data?.message) {
       return error.response.data.message;
     }

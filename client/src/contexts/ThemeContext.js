@@ -1,17 +1,12 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { ThemeContextType } from '../types';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-
-interface ThemeProviderProps {
-  children: ReactNode;
-}
+const ThemeContext = createContext();
 
 /**
  * Theme Context Provider
  * Manages dark/light theme state and applies theme classes to the document
  */
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
+export const ThemeProvider = ({ children }) => {
   const [isDark, setIsDark] = useState(() => {
     // Check for saved theme preference or default to system preference
     const savedTheme = localStorage.getItem('boomi-dashboard-theme');
@@ -39,7 +34,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   useEffect(() => {
     // Listen for system theme changes
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => {
+    const handleChange = (e) => {
       // Only update if no saved preference exists
       const savedTheme = localStorage.getItem('boomi-dashboard-theme');
       if (!savedTheme) {
@@ -51,11 +46,11 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  const toggleTheme = (): void => {
+  const toggleTheme = () => {
     setIsDark(prev => !prev);
   };
 
-  const value: ThemeContextType = {
+  const value = {
     isDark,
     toggleTheme,
   };
@@ -70,7 +65,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 /**
  * Custom hook to use theme context
  */
-export const useTheme = (): ThemeContextType => {
+export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider');

@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import apiService from '../services/api';
-import { ProcessExecution, ProcessResponse, FilterState } from '../types';
 import { formatDate, getStatusBadgeClasses, formatDuration } from '../utils';
 
-const ProcessList: React.FC = () => {
-  const [processes, setProcesses] = useState<ProcessExecution[]>([]);
+const ProcessList = () => {
+  const [processes, setProcesses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [filters, setFilters] = useState<FilterState>({
+  const [filters, setFilters] = useState({
     page: 1,
     limit: 20,
     sortBy: 'startTime',
@@ -18,9 +17,9 @@ const ProcessList: React.FC = () => {
     const fetchProcesses = async () => {
       try {
         setLoading(true);
-        const response: ProcessResponse = await apiService.getProcesses(filters);
+        const response = await apiService.getProcesses(filters);
         setProcesses(response.data);
-      } catch (err: any) {
+      } catch (err) {
         setError(apiService.handleApiError(err));
       } finally {
         setLoading(false);
@@ -30,7 +29,7 @@ const ProcessList: React.FC = () => {
     fetchProcesses();
   }, [filters]);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = (e) => {
     setFilters(prev => ({
       ...prev,
       search: e.target.value,
@@ -38,18 +37,18 @@ const ProcessList: React.FC = () => {
     }));
   };
 
-  const handleStatusFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleStatusFilter = (e) => {
     setFilters(prev => ({
       ...prev,
-      status: e.target.value as any,
+      status: e.target.value,
       page: 1
     }));
   };
 
-  const handleEnvironmentFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleEnvironmentFilter = (e) => {
     setFilters(prev => ({
       ...prev,
-      environment: e.target.value as any,
+      environment: e.target.value,
       page: 1
     }));
   };
