@@ -1,19 +1,14 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { AuthContextType, User, LoginCredentials } from '../types';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import apiService from '../services/api';
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-interface AuthProviderProps {
-  children: ReactNode;
-}
+const AuthContext = createContext();
 
 /**
  * Authentication Context Provider
  * Manages user authentication state and provides login/logout functionality
  */
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,7 +35,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initializeAuth();
   }, []);
 
-  const login = async (credentials: LoginCredentials): Promise<void> => {
+  const login = async (credentials) => {
     try {
       setLoading(true);
       const response = await apiService.login(credentials);
@@ -60,12 +55,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = (): void => {
+  const logout = () => {
     apiService.removeAuthToken();
     setUser(null);
   };
 
-  const value: AuthContextType = {
+  const value = {
     user,
     isAuthenticated: !!user,
     login,
@@ -83,7 +78,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 /**
  * Custom hook to use authentication context
  */
-export const useAuth = (): AuthContextType => {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');

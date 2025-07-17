@@ -1,11 +1,10 @@
 import { format, formatDistanceToNow, parseISO } from 'date-fns';
-import { ProcessStatus } from '../types';
 import clsx from 'clsx';
 
 /**
  * Date formatting utilities
  */
-export const formatDate = (dateString: string): string => {
+export const formatDate = (dateString) => {
   try {
     return format(parseISO(dateString), 'MMM dd, yyyy HH:mm:ss');
   } catch {
@@ -13,7 +12,7 @@ export const formatDate = (dateString: string): string => {
   }
 };
 
-export const formatDateShort = (dateString: string): string => {
+export const formatDateShort = (dateString) => {
   try {
     return format(parseISO(dateString), 'MMM dd, HH:mm');
   } catch {
@@ -21,7 +20,7 @@ export const formatDateShort = (dateString: string): string => {
   }
 };
 
-export const formatRelativeTime = (dateString: string): string => {
+export const formatRelativeTime = (dateString) => {
   try {
     return formatDistanceToNow(parseISO(dateString), { addSuffix: true });
   } catch {
@@ -29,7 +28,7 @@ export const formatRelativeTime = (dateString: string): string => {
   }
 };
 
-export const formatDateRange = (startDate: string, endDate: string | null): string => {
+export const formatDateRange = (startDate, endDate) => {
   try {
     const start = format(parseISO(startDate), 'HH:mm:ss');
     if (!endDate) return `Started at ${start}`;
@@ -43,7 +42,7 @@ export const formatDateRange = (startDate: string, endDate: string | null): stri
 /**
  * Duration formatting utilities
  */
-export const formatDuration = (milliseconds: number | null): string => {
+export const formatDuration = (milliseconds) => {
   if (!milliseconds) return 'N/A';
   
   const seconds = Math.floor(milliseconds / 1000);
@@ -59,7 +58,7 @@ export const formatDuration = (milliseconds: number | null): string => {
   return `${seconds}s`;
 };
 
-export const formatExecutionTime = (startTime: string, endTime: string | null): string => {
+export const formatExecutionTime = (startTime, endTime) => {
   try {
     if (!endTime) return 'In progress...';
     const start = parseISO(startTime);
@@ -74,11 +73,11 @@ export const formatExecutionTime = (startTime: string, endTime: string | null): 
 /**
  * Number formatting utilities
  */
-export const formatNumber = (num: number): string => {
+export const formatNumber = (num) => {
   return new Intl.NumberFormat('en-US').format(num);
 };
 
-export const formatBytes = (bytes: number): string => {
+export const formatBytes = (bytes) => {
   if (bytes === 0) return '0 B';
   
   const k = 1024;
@@ -88,7 +87,7 @@ export const formatBytes = (bytes: number): string => {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 };
 
-export const formatPercentage = (value: number, total: number): string => {
+export const formatPercentage = (value, total) => {
   if (total === 0) return '0%';
   return `${Math.round((value / total) * 100)}%`;
 };
@@ -96,7 +95,7 @@ export const formatPercentage = (value: number, total: number): string => {
 /**
  * Status-related utilities
  */
-export const getStatusColor = (status: ProcessStatus): string => {
+export const getStatusColor = (status) => {
   switch (status) {
     case 'Success':
       return 'text-green-600 dark:text-green-400';
@@ -111,7 +110,7 @@ export const getStatusColor = (status: ProcessStatus): string => {
   }
 };
 
-export const getStatusBadgeClasses = (status: ProcessStatus): string => {
+export const getStatusBadgeClasses = (status) => {
   const baseClasses = 'px-2 py-1 text-xs font-medium rounded-full';
   
   switch (status) {
@@ -128,7 +127,7 @@ export const getStatusBadgeClasses = (status: ProcessStatus): string => {
   }
 };
 
-export const getStatusIcon = (status: ProcessStatus): string => {
+export const getStatusIcon = (status) => {
   switch (status) {
     case 'Success':
       return '✓';
@@ -146,7 +145,7 @@ export const getStatusIcon = (status: ProcessStatus): string => {
 /**
  * Environment-related utilities
  */
-export const getEnvironmentBadgeClasses = (environment: string): string => {
+export const getEnvironmentBadgeClasses = (environment) => {
   const baseClasses = 'px-2 py-1 text-xs font-medium rounded';
   
   switch (environment) {
@@ -164,23 +163,23 @@ export const getEnvironmentBadgeClasses = (environment: string): string => {
 /**
  * String utilities
  */
-export const truncateText = (text: string, maxLength: number): string => {
+export const truncateText = (text, maxLength) => {
   if (text.length <= maxLength) return text;
   return `${text.substring(0, maxLength)}...`;
 };
 
-export const capitalizeFirst = (str: string): string => {
+export const capitalizeFirst = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
 
-export const kebabToCamel = (str: string): string => {
+export const kebabToCamel = (str) => {
   return str.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
 };
 
 /**
  * URL utilities
  */
-export const buildQueryString = (params: Record<string, any>): string => {
+export const buildQueryString = (params) => {
   const searchParams = new URLSearchParams();
   
   Object.entries(params).forEach(([key, value]) => {
@@ -192,9 +191,9 @@ export const buildQueryString = (params: Record<string, any>): string => {
   return searchParams.toString();
 };
 
-export const parseQueryString = (queryString: string): Record<string, string> => {
+export const parseQueryString = (queryString) => {
   const params = new URLSearchParams(queryString);
-  const result: Record<string, string> = {};
+  const result = {};
   
   for (const [key, value] of params) {
     result[key] = value;
@@ -206,7 +205,7 @@ export const parseQueryString = (queryString: string): Record<string, string> =>
 /**
  * Array utilities
  */
-export const groupBy = <T>(array: T[], key: keyof T): Record<string, T[]> => {
+export const groupBy = (array, key) => {
   return array.reduce((result, item) => {
     const group = String(item[key]);
     if (!result[group]) {
@@ -214,10 +213,10 @@ export const groupBy = <T>(array: T[], key: keyof T): Record<string, T[]> => {
     }
     result[group].push(item);
     return result;
-  }, {} as Record<string, T[]>);
+  }, {});
 };
 
-export const sortBy = <T>(array: T[], key: keyof T, order: 'asc' | 'desc' = 'asc'): T[] => {
+export const sortBy = (array, key, order = 'asc') => {
   return [...array].sort((a, b) => {
     const aVal = a[key];
     const bVal = b[key];
@@ -231,7 +230,7 @@ export const sortBy = <T>(array: T[], key: keyof T, order: 'asc' | 'desc' = 'asc
 /**
  * Local storage utilities
  */
-export const getStorageItem = <T>(key: string, defaultValue: T): T => {
+export const getStorageItem = (key, defaultValue) => {
   try {
     const item = localStorage.getItem(key);
     return item ? JSON.parse(item) : defaultValue;
@@ -240,7 +239,7 @@ export const getStorageItem = <T>(key: string, defaultValue: T): T => {
   }
 };
 
-export const setStorageItem = <T>(key: string, value: T): void => {
+export const setStorageItem = (key, value) => {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch (error) {
@@ -248,7 +247,7 @@ export const setStorageItem = <T>(key: string, value: T): void => {
   }
 };
 
-export const removeStorageItem = (key: string): void => {
+export const removeStorageItem = (key) => {
   try {
     localStorage.removeItem(key);
   } catch (error) {
@@ -259,12 +258,12 @@ export const removeStorageItem = (key: string): void => {
 /**
  * Validation utilities
  */
-export const isValidEmail = (email: string): boolean => {
+export const isValidEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
 
-export const isValidUrl = (url: string): boolean => {
+export const isValidUrl = (url) => {
   try {
     new URL(url);
     return true;
@@ -276,13 +275,10 @@ export const isValidUrl = (url: string): boolean => {
 /**
  * Debounce utility
  */
-export const debounce = <T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): (...args: Parameters<T>) => void => {
-  let timeout: NodeJS.Timeout;
+export const debounce = (func, wait) => {
+  let timeout;
   
-  return (...args: Parameters<T>) => {
+  return (...args) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);
   };
@@ -291,7 +287,7 @@ export const debounce = <T extends (...args: any[]) => any>(
 /**
  * Copy to clipboard utility
  */
-export const copyToClipboard = async (text: string): Promise<boolean> => {
+export const copyToClipboard = async (text) => {
   try {
     await navigator.clipboard.writeText(text);
     return true;

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import apiService from '../services/api';
-import { DashboardSummary } from '../types';
 
-const Dashboard: React.FC = () => {
-  const [summary, setSummary] = useState<DashboardSummary | null>(null);
+const Dashboard = () => {
+  const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -12,7 +11,7 @@ const Dashboard: React.FC = () => {
       try {
         const data = await apiService.getDashboardSummary();
         setSummary(data);
-      } catch (err: any) {
+      } catch (err) {
         setError(apiService.handleApiError(err));
       } finally {
         setLoading(false);

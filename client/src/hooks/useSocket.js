@@ -1,30 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
-import { SocketEvents } from '../types';
-
-interface UseSocketOptions {
-  autoConnect?: boolean;
-  namespace?: string;
-}
-
-interface UseSocketReturn {
-  socket: Socket | null;
-  isConnected: boolean;
-  connect: () => void;
-  disconnect: () => void;
-  emit: (event: string, data?: any) => void;
-  on: <K extends keyof SocketEvents>(event: K, callback: (data: SocketEvents[K]) => void) => void;
-  off: (event: string, callback?: Function) => void;
-}
+import { io } from 'socket.io-client';
 
 /**
  * Custom hook for managing Socket.IO connections
  * Provides real-time communication with the backend
  */
-export const useSocket = (options: UseSocketOptions = {}): UseSocketReturn => {
+export const useSocket = (options = {}) => {
   const { autoConnect = false, namespace = '' } = options;
   const [isConnected, setIsConnected] = useState(false);
-  const socketRef = useRef<Socket | null>(null);
+  const socketRef = useRef(null);
 
   const connect = () => {
     if (socketRef.current?.connected) return;
@@ -69,22 +53,19 @@ export const useSocket = (options: UseSocketOptions = {}): UseSocketReturn => {
     }
   };
 
-  const emit = (event: string, data?: any) => {
+  const emit = (event, data) => {
     if (socketRef.current?.connected) {
       socketRef.current.emit(event, data);
     }
   };
 
-  const on = <K extends keyof SocketEvents>(
-    event: K,
-    callback: (data: SocketEvents[K]) => void
-  ) => {
+  const on = (event, callback) => {
     if (socketRef.current) {
-      socketRef.current.on(event as string, callback);
+      socketRef.current.on(event, callback);
     }
   };
 
-  const off = (event: string, callback?: Function) => {
+  const off = (event, callback) => {
     if (socketRef.current) {
       if (callback) {
         socketRef.current.off(event, callback);
